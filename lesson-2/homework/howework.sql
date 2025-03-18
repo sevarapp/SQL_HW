@@ -1,59 +1,107 @@
-select 1
-create database HW2
-use HW2
---DDL commands that define and manage database
-example1: create table homework( taskname int, def varchar(50))
-example2: alter table homework
-add person_responsible varchar(50)
+-- Create the database
+CREATE DATABASE HW2;
+USE HW2;
 
-exec sp_rename 'homework.taskname','Tasknumber', 'Column';
-select * from homework
+-- DDL commands (Data Definition Language) define and manage the database structure
+-- Example 1: Create a table
+CREATE TABLE homework (
+    TaskNumber INT, 
+    Def VARCHAR(50)
+);
 
---Data Manipulation Language make changes after objects have been set
-example1: insert into homework values (35,'python','sevara'),(37,'sql','sarah')
-example2: UPDATE homework
-set tasknumber= 80
-where def='python'
+-- Example 2: Alter table to add a new column
+ALTER TABLE homework
+ADD person_responsible VARCHAR(50);
 
-create table employees (EmpID INT PRIMARY KEY, Name VARCHAR(50), Salary DECIMAL(10,2))
-insert into employees VALUES (30,'Alex',1700.45),(40,'bob',1500.5),(35,'daniel',2010.8)
+-- Rename a column
+EXEC sp_rename 'homework.TaskNumber', 'TaskID', 'COLUMN';
 
-select * from employees
-update employees
-set salary=5000
-where EmpID=35
+-- DML commands (Data Manipulation Language) modify data after objects have been created
+-- Example 1: Insert data into the table
+INSERT INTO homework (TaskID, Def, person_responsible) 
+VALUES (35, 'python', 'Sevara'), (37, 'sql', 'Sarah');
 
-delete from employees
-where EmpID=40
+-- Example 2: Update a specific record
+UPDATE homework
+SET TaskID = 80
+WHERE Def = 'python';
 
---truncate deletes all the rows keeping the object/table format, table can be reused
---delete gives a choice, what to delete if used with where operation
---drop deletes the object entirely
+-- Create Employees table
+CREATE TABLE employees (
+    EmpID INT PRIMARY KEY, 
+    Name VARCHAR(50), 
+    Salary DECIMAL(10,2)
+);
 
-Alter table  employees alter column  name VARCHAR(100)
-alter TABLE employees
-add department varchar(50)
+-- Insert data into Employees table
+INSERT INTO employees (EmpID, Name, Salary) 
+VALUES (30, 'Alex', 1700.45), (40, 'Bob', 1500.5), (35, 'Daniel', 2010.8);
+
+-- Select all records from Employees table
+SELECT * FROM employees;
+
+-- Update a specific employee's salary
+UPDATE employees
+SET Salary = 5000
+WHERE EmpID = 35;
+
+-- Delete a specific employee record
+DELETE FROM employees
+WHERE EmpID = 40;
+
+-- Explanation of DELETE, TRUNCATE, and DROP:
+-- 1. DELETE removes specific records but keeps the table.
+-- 2. TRUNCATE removes all records but keeps the table structure.
+-- 3. DROP removes the entire table structure permanently.
+
+-- Modify column Name to have a larger size
+ALTER TABLE employees 
+ALTER COLUMN Name VARCHAR(100);
+
+-- Add a new column Department
+ALTER TABLE employees
+ADD Department VARCHAR(50);
 
 
---Medium
-create table departments (deptid int PRIMARY key, EmpID int ,foreign key (Empid) REFERENCES employees (EmpID) )
+-- MEDIUM LEVEL TASKS
 
-INSERT INTO Departments
-SELECT salary, EmpID FROM Employees
+-- Create Departments table with a foreign key
+CREATE TABLE departments (
+    DeptID INT PRIMARY KEY, 
+    EmpID INT, 
+    FOREIGN KEY (EmpID) REFERENCES employees(EmpID)
+);
 
-select * from departments
-UPDATE Employees SET Department = 'Management' WHERE Salary > 5000; --however I don't have this kind of column (department)
-TRUNCATE TABLE Employees;
---VARCHAR: Stores non-Unicode text (1 byte per character).
---NVARCHAR: Stores Unicode text (2 bytes per character), useful for international characters.
+-- Insert data into Departments table using INSERT INTO SELECT
+INSERT INTO departments (DeptID, EmpID)
+SELECT EmpID, EmpID FROM employees;  -- Ensure DeptID values are unique (modify as needed)
 
-alter table employees
-alter column salary float 
+-- Select all records from Departments table
+SELECT * FROM departments;
 
-alter table employees
-drop column department
+-- Update Department for employees earning more than 5000
+UPDATE employees 
+SET Department = 'Management' 
+WHERE Salary > 5000;  -- The Department column should exist
 
-select into copy.table from departments
+-- Remove all records from Employees table without deleting its structure
+TRUNCATE TABLE employees;
 
-drop table departments
+-- VARCHAR vs NVARCHAR explanation:
+-- VARCHAR: Stores non-Unicode text (1 byte per character).
+-- NVARCHAR: Stores Unicode text (2 bytes per character), useful for international characters.
+
+-- Modify Salary column data type to FLOAT
+ALTER TABLE employees 
+ALTER COLUMN Salary FLOAT;
+
+-- Drop the Department column from Employees table
+ALTER TABLE employees 
+DROP COLUMN Department;
+
+-- Copy data from Departments table into a new table
+SELECT * INTO copy_table FROM departments;
+
+-- Drop the Departments table
+DROP TABLE departments;
 
