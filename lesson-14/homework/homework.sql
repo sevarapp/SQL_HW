@@ -268,19 +268,59 @@ GO
 --
 
 */
-/*
-Easy Tasks
-1.Write a SQL query to split the Name column by a comma into two separate columns: Name and Surname.(TestMultipleColumns)
-2.Write a SQL query to find strings from a table where the string itself contains the % character.(TestPercent)
-3.In this puzzle you will have to split a string based on dot(.).(Splitter)
-4.Write a SQL query to replace all integers (digits) in the string with 'X'.(1234ABC123456XYZ1234567890ADS)
-5.Write a SQL query to return all rows where the value in the Vals column contains more than two dots (.).(testDots)
-6.Write a SQL query to count the occurrences of a substring within a string in a given column.(Not table)
-7.Write a SQL query to count the spaces present in the string.(CountSpaces)
-8.write a SQL query that finds out employees who earn more than their managers.(Employee)
 
-Medium Tasks
-1.Write a SQL query to separate the integer values and the character values into two different columns.(SeperateNumbersAndCharcters)
+Easy Tasks
+--1.Write a SQL query to split the Name column by a comma into two separate columns: Name and Surname.(TestMultipleColumns)
+    SELECT 
+    Id,
+    LTRIM(RTRIM(LEFT(Name, CHARINDEX(',', Name) - 1))) AS FirstName,
+    LTRIM(RTRIM(SUBSTRING(Name, CHARINDEX(',', Name) + 1, LEN(Name)))) AS Surname
+FROM TestMultipleColumns
+WHERE Name LIKE '%,%';
+
+--2.Write a SQL query to find strings from a table where the string itself contains the % character.(TestPercent)
+SELECT *
+FROM TestPercent
+WHERE Strs LIKE '%[%]%';
+
+--3.In this puzzle you will have to split a string based on dot(.).(Splitter)
+SELECT 
+    Id, 
+    value AS SplitValue
+FROM Splitter
+CROSS APPLY STRING_SPLIT(Vals, '.');
+
+
+--4.Write a SQL query to replace all integers (digits) in the string with 'X'.(1234ABC123456XYZ1234567890ADS)
+   SELECT 
+    TRANSLATE('1234ABC123456XYZ1234567890ADS', '0123456789', 'XXXXXXXXXX') AS ReplacedString;
+ 
+--5.Write a SQL query to return all rows where the value in the Vals column contains more than two dots (.).(testDots)
+    SELECT *
+FROM testDots
+WHERE LEN(Vals) - LEN(REPLACE(Vals, '.', '')) > 2;
+
+--6.Write a SQL query to count the occurrences of a substring within a string in a given column.(Not table)
+SELECT 
+    Vals,
+    (LEN(Vals) - LEN(REPLACE(Vals, 'a', ''))) AS CountOfA
+FROM Splitter;
+
+--7.Write a SQL query to count the spaces present in the string.(CountSpaces)
+SELECT 
+    texts,
+    LEN(texts) - LEN(REPLACE(texts, ' ', '')) AS SpaceCount
+FROM CountSpaces;
+
+--8.write a SQL query that finds out employees who earn more than their managers.(Employee)
+SELECT E.Name AS EmployeeName
+FROM Employee E
+JOIN Employee M ON E.ManagerId = M.Id
+WHERE E.Salary > M.Salary;
+
+--Medium Tasks
+--1.Write a SQL query to separate the integer values and the character values into two different columns.(SeperateNumbersAndCharcters)
+
 2.write a SQL query to find all dates' Ids with higher temperature compared to its previous (yesterday's) dates.(weather)
 3.Write a SQL query that reports the device that is first logged in for each player.(Activity)
 4.Write an SQL query that reports the first login date for each player.(Activity)
@@ -295,3 +335,6 @@ Difficult Tasks
 3.Write a T-SQL query to remove the duplicate integer values present in the string column. Additionally, remove the single integer character that appears in the string.(RemoveDuplicateIntsFromNames)
 4.Find a string where all characters are the same and the length is greater than 1.(FindSameCharacters)
 5.Write a SQL query to extract the integer value that appears at the start of the string in a column named Vals.(GetIntegers)
+    
+
+
