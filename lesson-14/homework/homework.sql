@@ -86,3 +86,42 @@ SELECT *,
        CAST((ISNULL(SalesLocal, 0) + ISNULL(SalesRemote, 0)) * 100.0 /
            SUM(ISNULL(SalesLocal, 0) + ISNULL(SalesRemote, 0)) OVER (PARTITION BY Area, FinancialWeek) AS DECIMAL(5,2)) AS WeekPercentage
 FROM WeekPercentagePuzzle;
+-- 1. Swap first two values of comma-separated string
+SELECT Id,
+       CASE 
+           WHEN CHARINDEX(',', Vals) > 0 AND CHARINDEX(',', Vals, CHARINDEX(',', Vals)+1) > 0 THEN
+               CONCAT(PARSENAME(REPLACE(Vals, ',', '.'), 2), ',', PARSENAME(REPLACE(Vals, ',', '.'), 3), ',', PARSENAME(REPLACE(Vals, ',', '.'), 1))
+           ELSE Vals
+       END AS SwappedVals
+FROM MultipleVals;
+
+-- 2. Find strings with all same character, length > 1
+SELECT * FROM FindSameCharacters
+WHERE LEN(Vals) > 1 AND LEN(REPLACE(Vals, LEFT(Vals, 1), '')) = 0;
+
+-- 3. Remove duplicate integer values from slug name
+SELECT DISTINCT PawanName,
+       LEFT(Pawan_slug_name, CHARINDEX('-', Pawan_slug_name)) +
+       STUFF(
+           (
+               SELECT ',' + value
+               FROM (
+                   SELECT DISTINCT value
+                   FROM STRING_SPLIT(SUBSTRING(Pawan_slug_name, CHARINDEX('-', Pawan_slug_name)+1, LEN(Pawan_slug_name)), '')
+                   WHERE ISNUMERIC(value) = 1
+               ) AS t
+               FOR XML PATH(''), TYPE
+           ).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+AS CleanedSlug
+FROM RemoveDuplicateIntsFromNames;
+
+-- 4. (Duplicate of 2, already done)
+
+-- 5. Extract starting integer value
+SELECT *,
+       CASE 
+           WHEN PATINDEX('%[0-9]%', VALS) = 1 THEN
+               LEFT(VALS, PATINDEX('%[^0-9]%', VALS + 'X') - 1)
+           ELSE NULL
+       END AS StartingInteger
+FROM GetIntegers;
